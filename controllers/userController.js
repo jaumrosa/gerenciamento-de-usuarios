@@ -8,6 +8,7 @@ class UserController {
 
         this.onSubmit();
         this.onEdit();
+        this.selectAll();
 
     }
 
@@ -104,6 +105,8 @@ class UserController {
 
                     values.photo = content;
 
+                    this.insert(values);
+
                     this.addLine(values);
 
                     this.formEl.reset();
@@ -195,6 +198,43 @@ class UserController {
         );
     }
 
+    getUsersStorage(){
+
+        let users = [];
+
+        if(localStorage.getItem("users")){
+            
+            users = JSON.parse(localStorage.getItem("users"));
+        }
+
+        return users;
+    }
+
+    selectAll(){
+
+        const users =  this.getUsersStorage();
+
+        for (const dataUser of users){
+
+            const user = new User();
+
+            user.loadFromJSON(dataUser);
+
+            this.addLine(user);
+        }
+
+    }
+
+    insert(data){
+
+        const users =  this.getUsersStorage();
+
+        users.push(data);
+
+        //sessionStorage.setItem("users", JSON.stringify(users));
+        localStorage.setItem("users", JSON.stringify(users));
+    }
+
     addLine(dataUser){
 
        let tr = document.createElement('tr');
@@ -227,7 +267,7 @@ class UserController {
 
             if(confirm("Deseja realmente excluir?")){
                 tr.remove();
-                
+
                 this.updateCount();
             }
 
