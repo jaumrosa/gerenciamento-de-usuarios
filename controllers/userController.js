@@ -15,66 +15,84 @@ class UserController {
 
             event.preventDefault();
 
-            let values = this.getValues();
-
+            let btn = this.formEl.querySelector("[type=submit]");
             
+            btn.disabled = true;
 
-            this.getPhoto((content)=>{
+            const values = this.getValues();
 
-                values.photo = content;
+            this.getPhoto().then(
+                (content)=>{
 
-                this.addLine(values);
+                    values.photo = content;
 
-            });
+                    this.addLine(values);
 
-            
+                    this.formEl.reset();
 
+                    btn.disabled = false;
+                },
+                (e)=> {
+                    console.error(e);
+                }
+            );
         
         });
 
     }
 
-    getPhoto(callback){
+    getPhoto(){
 
-        let fileReader = new FileReader();
+        return new Promise((resolve, reject)=>{
 
-        let elements = [...this.formEl.elements].filter(item=>{
+            const fileReader = new FileReader();
+
+            const elements = [...this.formEl.elements].filter(item=>{
             
             if (item.name === 'photo'){
                 return item;
             }
         })
 
-        let file = elements[0].files[0];
+        const file = elements[0].files[0];
 
         fileReader.onload = ()=>{
 
-            callback(fileReader.result);
+            resolve(fileReader.result);
         };
 
-        fileReader.readAsDataURL(file);
+        fileReader.onerror = () =>{
+
+            reject(e);
+        };
+
+        if (file) {
+            fileReader.readAsDataURL(file);
+        } else {
+           resolve('dist/img/boxed-bg.jpg');
+        }
+
+        })
+
+        
     }
 
     getValues(){
 
-        let user = {};
+        const user = {};
 
-        [...this.formEl.elements].forEach((field, index)=>{
-
-            if(field.name == "gender"){
-               
-                if (field.checked){
+        for (const field of this.formEl.elements) {
+            if (field.name === "gender") {
+                if (field.checked) {
                     user[field.name] = field.value;
                 }
-                
-                
-            }else{
-        
+            } else if(field.name === "admin") {
+                user[field.name] = field.checked;
+
+            } else {
                 user[field.name] = field.value;
             }
-            
-        
-        });
+        }
     
         return new User(
             user.name, 
@@ -90,21 +108,22 @@ class UserController {
 
     addLine(dataUser){
 
-        console.log(dataUser);
+       let tr = document.createElement('tr');
     
-        this.tableEl.innerHTML = `
-        <tr>
+        tr.innerHTML = `
             <td><img src="${dataUser.photo}"alt="User Image" class="img-circle img-sm"></td>
             <td>${dataUser.name}</td>
             <td>${dataUser.email}</td>
-            <td>${dataUser.admin}</td>
-             <td>${dataUser.birth}</td>
+            <td>${(dataUser.admin ? 'Sim' : 'Não')}</td>
+             <td>${Utils.dateFormat(dataUser.register)}</td>
              <td>
                 <button type="button" class="btn btn-primary btn-xs btn-flat">Editar</button>
                 <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
             </td>
-        </tr>
         `;
+
+        this.tableEl.appendChild(tr);
+
     }
     
 }
