@@ -34,7 +34,7 @@ class User{
     }
 
     get email () {
-        return this._name;
+        return this._email;
     }
 
     get password () {
