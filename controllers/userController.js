@@ -17,6 +17,7 @@ class UserController {
         document.querySelector("#box-user-update .btn-cancel").addEventListener("click", e=>{
 
             this.showPanelCreate();
+
         })
 
         this.formUpdateEl.addEventListener('submit', event=>{
@@ -56,6 +57,8 @@ class UserController {
                 const user = new User();
 
                 user.loadFromJSON(result);
+
+                user.save();
 
                 this.getTr(user, tr);
 
@@ -97,7 +100,7 @@ class UserController {
 
                     values.photo = content;
 
-                    this.insert(values);
+                    values.save();
 
                     this.addLine(values);
 
@@ -190,18 +193,6 @@ class UserController {
         );
     }
 
-    getUsersStorage(){
-
-        let users = [];
-
-        if(localStorage.getItem("users")){
-            
-            users = JSON.parse(localStorage.getItem("users"));
-        }
-
-        return users;
-    }
-
     selectAll(){
 
         const users =  this.getUsersStorage();
@@ -215,16 +206,6 @@ class UserController {
             this.addLine(user);
         }
 
-    }
-
-    insert(data){
-
-        const users =  this.getUsersStorage();
-
-        users.push(data);
-
-        //sessionStorage.setItem("users", JSON.stringify(users));
-        localStorage.setItem("users", JSON.stringify(users));
     }
 
     addLine(dataUser){
@@ -265,6 +246,13 @@ class UserController {
         tr.querySelector(".btn-delete").addEventListener("click", e=>{
 
             if(confirm("Deseja realmente excluir?")){
+
+                const user = new User();
+
+                user.loadFromJSON(JSON.parse(tr.dataset.user));
+
+                user.remove();
+
                 tr.remove();
 
                 this.updateCount();
