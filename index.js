@@ -1,5 +1,10 @@
 let fields = document.querySelectorAll("#form-user-create [name]");
+let user = {};
+
+
 fields.forEach((field, index) => {
-  (field.name === "gender" && field.checked) ? console.log(field, "Esse é o gênero selecionado no input") : ""   
+  (field.name === "gender" && field.checked) ? user[field.name] = field.value : user[field.name] = field.value;   
   }
 );
+
+console.log(user);
