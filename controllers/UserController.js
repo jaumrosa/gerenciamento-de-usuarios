@@ -13,7 +13,7 @@ class UserController{
 
     getValues(){
         let user = {};
-        this.formEl.elements.forEach((field, index) => {
+        [...this.formEl.elements].forEach((field, index) => {
             (field.name === "gender" && field.checked) ? user[field.name] = field.value : user[field.name] = field.value;   
         });
         return new User(user.name, user.gender, user.birth, user.country, user.email, user.password, user.photo, user.admin);
