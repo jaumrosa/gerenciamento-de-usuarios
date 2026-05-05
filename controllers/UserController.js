@@ -49,8 +49,8 @@ class UserController{
                 field.parentElement.classList.add('has-error');
                 isValid = false;
             }
-            if(field.name ==="gender" && field.checked){
-                user[field.name] = field.value;
+            if(field.name ==="gender"){
+                if (field.checked) user.gender = field.value;
             } else if(field.name === "admin"){
                 user[field.name] = field.checked;
             } else {
@@ -78,15 +78,26 @@ class UserController{
         tr.querySelector(".btn-edit").addEventListener("click", e=>{
             let json = JSON.parse(tr.dataset.user);
             let form = document.querySelector("#form-user-update");
-
             for (let name in json){
-                let field = form.querySelector("[name="+ name.replace("_", "")+"]");
-
+                let field = form.querySelector((`[name=${name.replace("_", "")}]`));
                 if(field){
-                    if(field.type === 'file') continue;
-                    field.value = json[name];
+                    switch(field.type){
+                        case 'file':
+                            continue;
+
+                        case 'radio':
+                            field = form.querySelector(`[name=${name.replace("_", "")}][value="${json[name]}"]`);
+                            field.checked = true;
+                            break;
+
+                        case 'checkbox':
+                            field.checked = json[name];
+                            break;
+
+                        default:
+                            field.value = json[name];
+                    }
                 } 
-                
             }   
             this.showPanelUpdate();
         });
