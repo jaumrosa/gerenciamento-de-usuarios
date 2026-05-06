@@ -33,7 +33,6 @@ class UserController{
                 user.loadFromJSON(result);
                 user.save();
                 this.getTr(user, tr);
-                this.addEventsTr(tr);
                 this.updateCount();
                 this.formUpdateEl.reset();
                 btn.disabled = false;
