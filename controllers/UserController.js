@@ -22,24 +22,10 @@ class UserController{
             let userOld = JSON.parse(tr.dataset.user);
             let result = Object.assign({}, userOld, values);
             this.getPhoto(this.formUpdateEl).then((content) =>{
-
-                if(!values.photo) {
-                    result._photo = userOld._photo;
-                } else {
-                    result._photo = content;
-                }
-                tr.dataset.user = JSON.stringify(result);
-                tr.innerHTML = `
-                <td><img src="${result._photo}" alt="User Image" class="img-circle img-sm"></td>
-                <td>${result._name}</td>
-                <td>${result._email}</td>
-                <td>${(result._admin)? 'Sim' : 'Não'}</td>
-                <td>${Utils.dateFormat(new Date(result._register))}</td>
-                <td>
-                    <button type="button" class="btn btn-primary btn-edit btn-xs btn-flat">Editar</button>
-                    <button type="button" class="btn btn-danger btn-xs btn-flat">Excluir</button>
-                </td>
-            `;
+                result._photo = (!values.photo)? userOld._photo : content;
+                let user = new User();
+                user.loadFromJSON(result);
+                this.getTr(user, tr);
                 this.addEventsTr(tr);
                 this.updateCount();
                 this.formUpdateEl.reset();
@@ -48,9 +34,6 @@ class UserController{
             }, (e) =>{
                 console.error(e)
             });
-
-
-
         });
     }
 
@@ -125,11 +108,16 @@ class UserController{
         let users = this.getUsersStorage();
         users.push(data);
         localStorage.setItem("users", JSON.stringify(users));
-
     }
 
     addLine(dataUser){
-        let tr = document.createElement('tr');
+        let tr = this.getTr(dataUser);
+        this.tableEl.appendChild(tr);
+        this.updateCount();
+    }
+
+    getTr(dataUser, tr = null){
+        if (tr === null) tr = document.createElement('tr');
         tr.dataset.user = JSON.stringify(dataUser);
         tr.innerHTML = `
             <td><img src="${dataUser.photo}" alt="User Image" class="img-circle img-sm"></td>
@@ -143,8 +131,7 @@ class UserController{
             </td>
         `;
         this.addEventsTr(tr);
-        this.tableEl.appendChild(tr);
-        this.updateCount();
+        return tr;
     }
 
     addEventsTr(tr){
@@ -153,9 +140,7 @@ class UserController{
                 tr.remove();
                 this.updateCount();
             }
-
         });
-
         tr.querySelector(".btn-edit").addEventListener("click", e=>{
             let json = JSON.parse(tr.dataset.user);
             this.formUpdateEl.dataset.trIndex = tr.sectionRowIndex;
