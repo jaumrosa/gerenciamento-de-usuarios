@@ -25,6 +25,7 @@ class UserController{
                 result._photo = (!values.photo)? userOld._photo : content;
                 let user = new User();
                 user.loadFromJSON(result);
+                user.save();
                 this.getTr(user, tr);
                 this.addEventsTr(tr);
                 this.updateCount();
@@ -32,7 +33,7 @@ class UserController{
                 btn.disabled = false;
                 this.showPanelCreate();
             }, (e) =>{
-                console.error(e)
+                console.error(e);
             });
         });
     }
@@ -46,12 +47,12 @@ class UserController{
             if (!values) return false;
             this.getPhoto(this.formEl).then((content) =>{
                 values.photo = content;
-                this.insert(values);
+                values.save();
                 this.addLine(values);
                 this.formEl.reset();
                 btn.disabled = false;
             }, (e) =>{
-                console.error(e)
+                console.error(e);
             });
         });
     }
@@ -87,27 +88,13 @@ class UserController{
         return new User(user.name, user.gender, user.birth, user.country, user.email, user.password, user.photo, user.admin);
     }
 
-    getUsersStorage(){
-        let users = [];
-        if(localStorage.getItem("users")){
-            users = JSON.parse(localStorage.getItem("users"));
-        }
-        return users;
-    }
-
     selectAll(){
-        let users = this.getUsersStorage();
+        let users = User.getUsersStorage();
         users.forEach(dataUser=>{
             let user = new User();
             user.loadFromJSON(dataUser);
             this.addLine(user);
         })
-    }
-
-    insert(data){
-        let users = this.getUsersStorage();
-        users.push(data);
-        localStorage.setItem("users", JSON.stringify(users));
     }
 
     addLine(dataUser){
